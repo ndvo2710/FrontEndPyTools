@@ -20,6 +20,10 @@ body {
 }
 """
 
+SMALL_MEDIA_QUERY = """
+@media only screen and (min-width: 768px) {
+"""
+
 MEDIUM_MEDIA_QUERY = """
 @media only screen and (min-width: 1020px) {
 """
@@ -36,12 +40,15 @@ class PageBodyParser:
         self.body = self.soup.find("body")
 
     def parse_to_file(self):
-        file_path = os.path.join(CWD, "output.scss")
         body_children_str = self.get_recursive_chidlren(self.body)
         scss_final_str = f"{SCSS_HEADER}\n{body_children_str}"
+        scss_final_str = f"{scss_final_str}\n\n{SMALL_MEDIA_QUERY}\n{body_children_str}\n" + "}"
         scss_final_str = f"{scss_final_str}\n\n{MEDIUM_MEDIA_QUERY}\n{body_children_str}\n" + "}"
         scss_final_str = f"{scss_final_str}\n\n{LARGE_MEDIA_QUERY}\n{body_children_str}\n" + "}"
 
+        file_path = os.path.join(CWD, "output.scss")
+        if os.path.exists(file_path):
+            os.remove(file_path)
         with open(file_path, "w") as f:
             f.write(scss_final_str)
             f.close()
